@@ -1,0 +1,59 @@
+---
+title: "TidyTemplate"
+date: 2020-09-21
+output: html_output
+editor_options: 
+  chunk_output_type: console
+---
+
+# TidyTuesday
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, 
+                      warning = FALSE, message = FALSE,
+                      dpi = 180, fig.width = 8, fig.height = 5)
+
+library(tidyverse)
+library(tidytuesdayR)
+library(scales)
+theme_set(theme_light())
+
+```
+
+# Load the weekly Data
+
+Download the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load("2018-11-20")
+thanksgiving <- tt$thanksgiving_meals
+```
+
+### Cleaning
+
+```{r}
+thanksgiving <- thanksgiving %>% 
+    mutate(family_income = fct_reorder(family_income, parse_number(family_income)))
+```
+
+```{r}
+thanksgiving %>%
+    filter(cranberry == c("Canned","Homemade")) %>% 
+    group_by(family_income) %>% 
+    summarise(homemade = sum(cranberry == "Homemade"),
+              total = n(),
+              low = qbeta(0.025, homemade + 0.5, total - homemade + 0.5),
+              high = qbeta(0.975, homemade + 0.5, total - homemade + 0.5)) %>% 
+    ggplot(aes(family_income, homemade/total, group =1)) +
+    geom_line() +
+    geom_ribbon(aes(ymin = low, ymax = high), alpha = 0.5) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+
+```
+
