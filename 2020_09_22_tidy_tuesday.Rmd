@@ -130,3 +130,84 @@ food_gathred %>%
   pairwise_cor(value, id, sort = T)
 ```
 
+### For Dashboard
+
+Cleaning data for dashboard
+```{r}
+thanksgiving_db <- thanksgiving %>%
+  inner_join(food_gathred) %>% 
+  select(id, community_type, age, gender, family_income, us_region, type, value) %>% 
+  drop_na() %>% 
+  mutate(family_income = str_replace(family_income, "Prefer not to answer", "Don't want to disclose")) %>% 
+  rename("food_item" = value)
+
+  
+```
+
+```{r}
+thanksgiving_db %>% 
+  filter(community_type == "Suburban",
+         age == "18 - 29",
+         gender == "Male",
+         family_income == "Don't want to disclose",
+         us_region == "New England",
+         type == "side") %>% 
+  count()
+```
+
+```{r}
+thanksgiving_db %>% 
+  filter(us_region == "New England") %>% 
+  count(gender) %>% 
+  mutate(percent = n/sum(n)) %>% 
+  ggplot(aes(gender, percent, fill = gender)) +
+  geom_col(show.legend = F) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Gender Ratio",
+       x = "",
+       y = "") +
+  coord_flip()
+```
+
+```{r}
+thanksgiving_db %>% 
+  filter(us_region == "New England") %>% 
+  count(community_type) %>% 
+  mutate(percent = n/sum(n)) %>% 
+  ggplot(aes(community_type, percent, fill = community_type)) +
+  geom_col(show.legend = F) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Community Types",
+       x = "",
+       y = "") +
+  coord_flip()
+```
+
+```{r}
+thanksgiving_db %>% 
+  filter(us_region == "New England") %>% 
+  count(age) %>% 
+  mutate(percent = n/sum(n)) %>% 
+  ggplot(aes(age, percent, fill = age)) +
+  geom_col(show.legend = F) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Various Age Groups",
+       x = "",
+       y = "") +
+  coord_flip()
+```
+
+```{r}
+thanksgiving_db %>% 
+  filter(us_region == "New England") %>% 
+  count(family_income) %>% 
+  mutate(percent = n/sum(n)) %>% 
+  ggplot(aes(family_income, percent, fill = family_income)) +
+  geom_col(show.legend = F) +
+  scale_y_continuous(labels = percent_format()) +
+  labs(title = "Family Income",
+       x = "",
+       y = "") +
+  coord_flip()
+```
+
